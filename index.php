@@ -1,5 +1,5 @@
 <?php
-
+/*test*/
 // Define LIVE constant as true if 'localhost' is not present in the host name. Configure the detecting of environment as necessary of course.
 
 if (isset($_SERVER['HTTP_HOST'])){
