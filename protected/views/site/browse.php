@@ -445,6 +445,24 @@ $this->endWidget ();
 
 $(document).ready(function() {
 
+	<?php
+	if (empty($loc_model->city_id)){
+	?>
+	// To auto get the current country
+	$.get("//freegeoip.net/json/", function(response) {
+		if (response.country_code){
+			$.post("ajaxGetCountryByAbbr", {country_abbr: response.country_code},
+				function(data){
+					$("#FormLocation_country_id").val(data.country_id);
+					$("#FormLocation_city_name").val(response.city);
+					processCityName();
+				}, "json");
+		}								
+	}, "json");
+	<?php 
+	}
+	?>
+	
 	<?php 
 	if (!Yii::app()->user->isGuest){ 
 	?> 

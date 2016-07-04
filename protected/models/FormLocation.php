@@ -3,14 +3,17 @@ class FormLocation extends CFormModel
 {
 
 	public $country_id;
+	public $country_name;
+	
+	public $city_id;
 	public $city_name;
+	
+	public $region_id;
+	public $region_name;
+	
 	public $proximity_id;
 	public $city_region_selected;
-	
-	
-	public $region_name;
-	public $region_id;
-	public $city_id;
+		
 	public $long;
 	public $lat;
 
@@ -19,18 +22,95 @@ class FormLocation extends CFormModel
 	public $multiple_city_name_array;
 	
 	
-	public function __construct($country_id, $region_id, $city_id) {
-		
-		if (!empty($country_id)){	$this->country_id = $country_id; }
-		if (!empty($region_id))	{	$this->region_id = $region_id; }
-		if (!empty($city_id))	{ 	$this->city_id = $city_id; }
-		
-		if (!empty($city_id)){
-			$this->UpdateValuesBasedOffCity();
-		}
-		
+	public function __construct() {
+				
 	}
 	
+	public static function withIP( $ip ) {
+		/*
+		 [ip] => 157.52.17.37
+		 [country_code] => CA
+		 [country_name] => Canada
+		 [region_code] => ON
+		 [region_name] => Ontario
+		 [city] => Toronto
+		 [zip_code] => M6G
+		 [time_zone] => America/Toronto
+		 [latitude] => 43.6667
+		 [longitude] => -79.4168
+		 [metro_code] => 0
+		 */
+		// create curl resource
+		$ch = curl_init();
+		// set url
+		curl_setopt($ch, CURLOPT_URL, "freegeoip.net/json/".$ip);
+		//return the transfer as a string
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		// $output contains the output string
+		$outputJSON = curl_exec($ch);
+		// close curl resource to free up system resources
+		curl_close($ch);
+		
+		$outputArray = json_decode($outputJSON);
+		
+		$instance = self::withLocNames($outputArray->country_code, $outputArray->region_name, $outputArray->city);
+		
+		return $instance;
+	}
+	
+	public static function withLocIDs( $country_id, $region_id, $city_id, $proximity_id ) {
+		
+		$instance = new self();
+		
+		if (!empty($country_id)){	
+			$instance->country_id = $country_id; 
+		}
+		if (!empty($region_id))	{	
+			$instance->region_id = $region_id; 
+		}
+		if (!empty($city_id))	{ 	
+			$instance->city_id = $city_id; 
+			$instance->UpdateValuesBasedOffCity();
+		}
+		if (!empty($proximity_id))	{
+			$instance->proximity_id = $proximity_id;
+		}
+		
+		return $instance;
+	}
+
+	public static function withLocNames( $country_code, $region_name, $city_name ) {
+	
+		$instance = new self();
+	
+		$city = RefCities::model()->with(array('region', 'country'))->findBySql(
+				"select cities.* ".
+				"from 	ref_cities cities, ref_regions regions, ref_countries countries ".
+				"where 	cities.CountryID = countries.id ".
+				"and	cities.RegionID = regions.id ".
+				"and 	lower(countries.FIPS104) = lower(:country) ".
+				"and	lower(regions.Name) = lower(:region) ".
+				"and 	lower(cities.Name) = lower(:city) ",
+				array(	":country"=>$country_code,
+						":region"=>$region_name,
+						":city"=>$city_name)
+				);
+		
+		if (isset($city)){
+			$instance->country_id = $city->CountryID;
+			$instance->region_id = $city->RegionID;
+			$instance->city_id = $city->id;
+			$instance->city_name = $city->Name;
+			$instance->region_name = $city->RefRegions->Name;
+			$instance->country_name = $city->RefCountries->Name;
+			$instance->lat = $city->Latitude;
+			$instance->long = $city->Longitude;	
+		}
+		
+		$instance->proximity_id = 50;
+	
+		return $instance;
+	}
 	
 	public function rules()
 	{
@@ -121,4 +201,4 @@ class FormLocation extends CFormModel
 		}		
 		$this->error = $this->getErrors(null);
 	}
-}
+} 

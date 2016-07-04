@@ -37,11 +37,12 @@
  * @property string $about_4
  * @property string $about_5
  * @property string $about_6
+ * @property string $about_7
  * @property integer $age
  * @property integer $height
  * @property integer $body
  * @property integer $sect
- * @property integer $marital
+ * @property integer $marital 
  * @property integer $ethnicity
  * @property integer $residency
  * @property integer $education
@@ -152,8 +153,8 @@ class Member extends CActiveRecord
 				//array('city_id', 'required', 'message'=>'Select a city. <br/>', 'on'=>'signupPersonal1'),
 				//array('residence_status, income, marital_status, ethnicity, education, profession, sect, height, country_id, region_id, city_id', 'required', 'on'=>'signupPersonal1'),
 				
-				array('about_1, about_2, about_3, about_4, about_5, about_6', 'length', 'max'=>2000, 'on'=>'signupWritten'),
-				array('about_1, about_2, about_3, about_4, about_5, about_6', 'noEmailorPhone', 'on'=>'signupWritten'),
+				array('about_1, about_2, about_3, about_4, about_5, about_6, about_7', 'length', 'max'=>2000, 'on'=>'signupWritten'),
+				array('about_1, about_2, about_3, about_4, about_5, about_6, about_7', 'noEmailorPhone', 'on'=>'signupWritten'),
 				
 				array('country_id, region_id, city_id, profession', 'required', 'on'=>'signupPersonal'),
 				array('country_of_origin_id', 'required', 'message'=>'Select a Country <br/>', 'on'=>'signupPersonal'),
@@ -172,6 +173,11 @@ class Member extends CActiveRecord
 				
 				array('country_id, region_id, city_id', 'required', 'on'=>'processLocation'),
 			
+				array('about_1, about_2, about_3, about_4, about_5, about_6, about_7', 'length', 'max'=>2000, 'on'=>'signupWritten'),
+				array('about_1, about_2, about_3, about_4, about_5, about_6, about_7', 'noEmailorPhone', 'on'=>'signupWritten'),
+				
+				array('about_1, about_2, about_3, about_4, about_5, about_6, about_7', 'length', 'max'=>2000, 'on'=>'editWrittenInfo'),
+				array('about_1, about_2, about_3, about_4, about_5, about_6, about_7', 'noEmailorPhone', 'on'=>'editWrittenInfo'),
 				
 				array('marital, ethnicity, sect, body, residency, education, income, smoke, drinking, drugs, prayer, fasting', 'numerical', 'integerOnly'=>true),
 					
@@ -183,7 +189,7 @@ class Member extends CActiveRecord
 						join_date, step, subscription_end_date, last_login_date, profession,
 						country_of_origin_id, country_id, region_id, city_id, long, lat, 
 						wali_first_name, wali_last_name, wali_email, picture_id, user_message_date, user_message,
-						about_1, about_2, about_3, about_4, about_5, about_6, age, height, body, sect, 
+						about_1, about_2, about_3, about_4, about_5, about_6, about_7, age, height, body, sect, 
 						marital, ethnicity, residency, education, income, smoke, drinking, drugs, prayer, fasting, token, token_expiry_date,
 						new_password, new_password_confirm', 'safe'),	
 						);
@@ -251,6 +257,7 @@ class Member extends CActiveRecord
 			'about_4' => 'About 4',
 			'about_5' => 'About 5',
 			'about_6' => 'About 6',
+			'about_7' => 'About 7',
 			'age' => 'Age',
 			'height' => 'Height',
 			'body' => 'Body',
@@ -326,6 +333,7 @@ class Member extends CActiveRecord
 		$criteria->compare('about_4',$this->about_4,true);
 		$criteria->compare('about_5',$this->about_5,true);
 		$criteria->compare('about_6',$this->about_6,true);
+		$criteria->compare('about_7',$this->about_7,true);
 		$criteria->compare('age',$this->age);
 		$criteria->compare('height',$this->height);
 		$criteria->compare('body',$this->body);

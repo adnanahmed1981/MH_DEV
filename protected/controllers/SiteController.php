@@ -324,7 +324,7 @@ class SiteController extends Controller
     	// Since updates were done behind the scene update the member model
     	Yii::app()->user->member->refresh();
     	$member = Yii::app()->user->member;
-    	$loc_model = new FormLocation($member->country_id, $member->region_id, $member->city_id);
+    	$loc_model = FormLocation::withLocIDs($member->country_id, $member->region_id, $member->city_id);
     	
     	if (isset($_POST['continue'])){
     		
@@ -658,7 +658,7 @@ class SiteController extends Controller
     	
     	$member->memberAccept->gender = $gender_obj->id;
     	 
-    	$loc_model = new FormLocation(
+    	$loc_model = FormLocation::withLocIDs(
     			$member->memberAccept->country_id,
     			$member->memberAccept->region_id,
     			$member->memberAccept->city_id);
@@ -871,7 +871,7 @@ class SiteController extends Controller
     	
     	$member = Member::model()->with('memberAccept')->findByAttributes(array('id' => Yii::app()->user->member->id));
     	
-    	$loc_model = new FormLocation($member->country_id, $member->region_id, $member->city_id);
+    	$loc_model = FormLocation::withLocIDs($member->country_id, $member->region_id, $member->city_id);
     	
     	$validated = true;
     	
@@ -1316,56 +1316,99 @@ class SiteController extends Controller
     }
      
     public function actionBrowse(){
-
-    	if (!Yii::app()->user->isGuest){
-    		Yii::app()->user->member->touch();
-    	}
-    	
-    	$mid = null;
+		
+    	$isMember 	= !Yii::app()->user->isGuest;
+    	$mid 		= null;
     	$questionTypeIdArray = array();
-    	$member = null;
+    	$member 	= null;
     	$locationArray = array();
     	
-    	if (!Yii::app()->user->isGuest){
-	   		$mid = Yii::app()->user->member->id;
-	   		$member = Member::model()->with('memberAccept')->findByAttributes(array('id' => $mid));
-	   		$locationArray = array(	'country_id' => $member->memberAccept->country_id,
-	   								'region_id' => $member->memberAccept->region_id,
-	   								'city_id' => $member->memberAccept->city_id);
+    	if ($isMember){
+    		
+    		Yii::app()->user->member->touch();
+    		
     		$questionTypeIdArray = array(7,8,9,10,11,13);
-    	}else{
+    		
+    		$mid = Yii::app()->user->member->id;
+    		$member = Member::model()->with('memberAccept')->findByAttributes(array('id' => $mid));
+    		//print_all($member->memberAccept);
+    		$formLocationObj = FormLocation::withLocIDs(
+    				$member->memberAccept->country_id,
+    				$member->memberAccept->region_id,
+    				$member->memberAccept->city_id,
+    				$member->memberAccept->proximity_id);
+    		
+    		$ds = FormResponses::withQuestionTypesAndFormLocation($mid, $questionTypeIdArray, $formLocationObj);
+    	}
+    	else
+    	{
+    		//echo "Not member<br>";
     		// If guest get gender aswell
     		$questionTypeIdArray = array(7,8,9,10,11,12,13);
-    	} 
+    		
+    		$member = new Member();
+    		$member->memberAccept = new MemberAccept();
+    		
+    		if (isset($_COOKIE['FormLocation'])){
+    			//echo "_COOKIE['FormLocation'] present<br>";
+    			$cookiesArray = unserialize($_COOKIE['FormLocation']);
+    			
+    			//print_all($cookiesArray);
+    			$formLocationObj = FormLocation::withLocIDs(
+    					$cookiesArray['country_id'], 
+    					$cookiesArray['region_id'], 
+    					$cookiesArray['city_id'],
+    					$cookiesArray['proximity_id']);
+    		}
+    		else 
+    		{
+    			//echo "_COOKIE['FormLocation'] not present<br>";
+				$formLocationObj = FormLocation::withIP($_SERVER['REMOTE_ADDR']);
+   				
+   				if (empty($formLocationObj->city_id)){
+   					// Set default values
+   					$formLocationObj = FormLocation::withLocIDs(43, 37, 1206, 50);
+   				}
+    		}  
     	
-    	$v1 = true;
-    	$v2 = false;
-    	 
-    	$ds = new FormResponses($mid, $questionTypeIdArray, $locationArray);
-
-    	// Retreiving info via cookies if not logged in
-    	if ( (Yii::app()->user->isGuest) && (isset($_COOKIE['FormResponse'])) )
-    	{
-    		$data = unserialize($_COOKIE['FormResponse']);
-	    	// Loop through all the questions which were answered
-	    	foreach ($ds->formResponseArray as $i => $formResponse){
-	    	
-	    		$formResponse->response_id_array = array();
-	    	
-	    		// If values were selected apply them to the id array
-	    		if (isset($data[$i]))
-	    		{
-	    			$formResponse->response_id_array = $data[$i]['response_id_array'];
-	    			// Validate the formResponse to this question is valid
-	    			$formResponse->validate();
-	    		}
-	    	}
+    		$ds = FormResponses::withQuestionTypesAndFormLocation($mid, $questionTypeIdArray, $formLocationObj);
+    		//print_all($ds->memberAccept);
+    		
+    		// Retreiving info via cookies if not logged in
+    		if (isset($_COOKIE['FormResponse']))
+    		{
+    			$data = unserialize($_COOKIE['FormResponse']);
+    			//print_all($data);
+    			// Loop through all the questions which were answered
+    			foreach ($ds->formResponseArray as $i => $formResponse){
+    		
+    				$formResponse->response_id_array = array();
+    		
+    				// If values were selected apply them to the id array
+    				if (isset($data[$i]))
+    				{
+    					$formResponse->response_id_array = $data[$i]['response_id_array'];
+    					// Validate the formResponse to this question is valid
+    					$formResponse->validate();
+    				}
+    			}
+    		
+    			$ds->refreshMemberAccept(null);
+    		}
+    		
     	}
+    	
+    	//print_all($ds->memberAccept);
+    	
+    	$v_formLocation = true;
+		$v_formResponses = true;
+       	$v_memberAccept = true;
     	
     	// If submitted update search values
     	// This will update the member_accept table
-    	if (isset($_POST['submit']) && (isset($_POST['FormResponse']))){
-    		
+    	if (isset($_POST['submit'])){
+    		//echo "POSTED<br>";
+    		$updateCookies = false;
     		// Loop through all the questions which were answered
 	  		foreach ($ds->formResponseArray as $i => $formResponse){
 	  			
@@ -1378,89 +1421,71 @@ class SiteController extends Controller
 	  			
 	  			// Validate the formResponse to this question is valid
 	  			if ($formResponse->validate()){
+	  				
 	  				// If logged in save preferences
-	  				if (!Yii::app()->user->isGuest){
+	  				if ($isMember){
 	  					// Member accept model has been updated
 	  					$formResponse->save();
-	  				}
-	  				else
-	  				{
-	  					// Save preferences to cookies if not logged in
-	  					$cookie_name = "FormResponse";
-	  					$cookie_value = serialize($_POST['FormResponse']);
-	  					setcookie($cookie_name, $cookie_value, time() + (86400 * 30), "/"); // 86400 = 1 day
+	  				}else{
+	  					$updateFormResponseCookies = true;
 	  				}
 	  			}
 	  			else
 	  			{
-	  				$v1 = false;
+	  				$v_formResponses = false; 
 	  			}
+	  		}
+	   		
+	   		if ($updateFormResponseCookies)
+	   		{
+	   			// Save preferences to cookies if not logged in
+	   			$cookie_name = "FormResponse";
+	   			$cookie_value = serialize($_POST['FormResponse']);
+	   			setcookie($cookie_name, $cookie_value, time() + (86400 * 30), "/"); // 86400 = 1 day
+	   			
+	   		}
+	   		
+	   		$newFormLocationObj = null;
+	   		
+	   		if (isset($_POST['FormLocation'])){
+	   		
+	   			$newFormLocationObj = FormLocation::withLocIDs(
+	   					$_POST['FormLocation']['country_id'],
+	   					$_POST['FormLocation']['region_id'],
+	   					$_POST['FormLocation']['city_id'], 
+	   					$_POST['FormLocation']['proximity_id']);
+
+	   		}
+
+	   		// Refresh based off new responses
+	   		$ds->refreshMemberAccept($newFormLocationObj);
+	   		
+	   		if (!$ds->formLocation->validate()){
+	   			$v_formLocation = false;
+	   		}
+	   		
+	   		if ($ds->memberAccept->validate()){
+	   			if ($isMember){
+	   				$ds->memberAccept->save(false);
+	   			}else{
+	   				// Save preferences to cookies if not logged in
+	   				$cookie_name = "FormLocation";
+	   				$cookie_value = serialize($_POST['FormLocation']);
+	   				setcookie($cookie_name, $cookie_value, time() + (86400 * 30), "/"); // 86400 = 1 day
+	   			}
+	   		}else{
+	   			$v_memberAccept = false;
+	   			print_all($ds->memberAccept);
+	   			print_all($ds->memberAccept->getErrors());
 	   		}
     	}
     	
     	// Set the general member accepted model
-    	if (!Yii::app()->user->isGuest){
- 	   		// Must be placed after the saving of the response process
-	    	$member = Member::model()->with('memberAccept')->findByAttributes(array('id' => $mid));
-	    	$memberAccept = $member->memberAccept;
-    	}
-    	else 
-    	{
-    		// Retreiving info via cookies if not logged in
-    		if (isset($_COOKIE['FormLocation'])) {
-    			$data = unserialize($_COOKIE['FormLocation']);
-    			$ds->formLocation->attributes = $data;
-    			$ds->memberAccept->attributes = $data;
-    		}
-    		// Use the adhoc created model
-    		$ds->updateMemberAccept();  
-    		$memberAccept = $ds->memberAccept;
-    		$memberAccept->validate();
-    	}
-    	
-    	    
-	    // Update the member accept model wrt location
-	    if (isset($_POST['submit'])) {
-	    	
-	    	if (isset($_POST['FormLocation'])){
-	    		
-	    		$ds->formLocation->attributes = $_POST['FormLocation'];
-	    		// Since the attribute names are the same do bulk copy
-	    		$memberAccept->attributes = $_POST['FormLocation'];
-	    	}
-
-	    	$ds->formLocation->validate();
-	    	if ($memberAccept->validate()){
-	    		$v2 = true;
-	    	}
-	    
-	    	// If logged in update preferences
-	    	if ($v1 && $v2){
-		    		 
-		    	if (!Yii::app()->user->isGuest){
-		    		
-		    		/*
-		    		if ($member->step < 4){
-		    			$member->step = 4;
-		    			$member->save(false);
-		    		}
-		    		*/
-		    		
-			    	$memberAccept->save(false);
-			    	//$this->redirect(array($log, 'err'=>'Unable to login using Facebook'));
-	        	}
-		    	else
-		    	{
-		    		// Save preferences to cookies if not logged in
-		    		$cookie_name = "FormLocation";
-		    		$cookie_value = serialize($_POST['FormLocation']);
-		    		setcookie($cookie_name, $cookie_value, time() + (86400 * 30), "/"); // 86400 = 1 day
-		    	}
-	    	}
-    	}
+    	$memberAccept = $ds->memberAccept;
+	   
+    	//print_all($memberAccept);
     	
     	$resultsArray = array();
-    	//print_all(unserialize($_COOKIE['FormResponse']));
     	
     	$last_login_obj = RefAnswer::model()->findByAttributes(array('id'=>$memberAccept->last_login_date));
     	$last_login_val = empty($last_login_obj) ? '30' : $last_login_obj->value;
@@ -1473,16 +1498,14 @@ class SiteController extends Controller
     	$max_age_obj = RefAnswer::model()->findByAttributes(array('id'=>$memberAccept->max_age));
     	$max_age_val = $max_age_obj->text;
     	
-    	$search_executed = false;
+    	$search_executed = false; 
 
-    	if ( (!Yii::app()->user->isGuest && $v1 && $v2 && isset($_POST['submit'])) || 
-    		 (!Yii::app()->user->isGuest && !isset($_POST['submit'])) || 
-    		 (Yii::app()->user->isGuest && isset($_COOKIE['FormResponse']) && isset($_COOKIE['FormLocation'])) ||
-    		 (Yii::app()->user->isGuest && isset($_POST['submit'])) )
+    	//echo "v1 $v_formResponses v2 $v_memberAccept";
+    	if ( $v_formResponses && $v_memberAccept )
     	{
 
     		$search_executed = true;
-	    	$gender_obj = RefAnswer::model()->findByAttributes(array('id'=>$memberAccept->gender));
+    		$gender_obj = RefAnswer::model()->findByAttributes(array('id'=>$memberAccept->gender));
 	    	
 	    	$sql =  "SELECT	DISTINCT \n".
 	      			"		m.id, \n". 
@@ -1497,9 +1520,9 @@ class SiteController extends Controller
 	    			"WHERE 	m.id = lang.member_id \n".
 	      			"AND	m.step = 999 \n";
 	    	
-	    	$sql .= sprintf("AND m.gender = '%s' \n", $gender_obj->text[0]);
+	    	$sql .= sprintf("AND m.gender = '%s' \n", $gender_obj->value);
 	   		$sql .= sprintf("AND m.date_of_birth between DATE_SUB(UTC_TIMESTAMP(), interval %s year) ".
-	    			"AND DATE_SUB(UTC_TIMESTAMP(), interval %s year) \n", $max_age_val, $min_age_val);
+	    			"AND DATE_SUB(UTC_TIMESTAMP(), interval %s year) \n", $max_age_val + 1, $min_age_val - 1);
 	   		$sql .= sprintf("AND m.height between %s AND %s \n", $memberAccept->min_height, $memberAccept->max_height);
 	   		if (Yii::app()->user->isGuest)
 	   			$sql .= sprintf("AND m.public_profile in ('Y') \n");	   			 
@@ -1582,10 +1605,7 @@ class SiteController extends Controller
 	   			$new_result->withID($mid, $match_memberId, $match_prox);
 	   			$resultsArray[] = $new_result;
 	   		}
-	   		
-
     	}
-    	
    		
     	unset($_POST['submit']);
     	
@@ -1829,7 +1849,7 @@ class SiteController extends Controller
 
     public function actionGetLocation(){
     	
-    	$loc_model = new FormLocation(43,37,12054); 
+    	$loc_model = FormLocation::withLocIDs(43,37,12054); 
     	
     	if (isset($_POST['FormLocation'])){
     		$loc_model->attributes = $_POST['FormLocation'];
@@ -1910,7 +1930,7 @@ class SiteController extends Controller
     
     public function actionAjaxGetLocation(){
     	 
-    	$loc_model = new FormLocation(null, null, null);
+    	$loc_model = new FormLocation();
     	if (isset($_POST['FormLocation'])){ 
     		$loc_model->scenario = 'safe';
     		$loc_model->attributes = $_POST['FormLocation'];

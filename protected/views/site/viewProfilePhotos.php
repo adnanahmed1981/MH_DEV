@@ -184,7 +184,7 @@ if (isset($member->picture)){
 <div class="container">
 <div class="row sm-margin-top sm-margin-bottom">
 	<div class="col-xs-12 col-sm-8 search_container">
-		<div style="position: relative;  width: 150px;">
+		<div style="position: relative; width: 150px; height:150px">
 			
 				<div class="top-right-corner-of-image">  
 					<a href="" >
