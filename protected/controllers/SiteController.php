@@ -3,6 +3,7 @@
 use Facebook\Facebook;
 class SiteController extends Controller 
 {
+	public $page_title;
 	public function actionError()
 	{
 		if ($error = Yii::app()->errorHandler->error) {
@@ -117,6 +118,7 @@ class SiteController extends Controller
 	    
    		}		
     	// display the login form
+   		$this->page_title = 'Muslim Harmony - Signup';
     	$this->layout = 'homepage';
     	$this->render('mainSignup', array('model' => $model, 
     									'signupModel' => $formSignup,
@@ -149,7 +151,8 @@ class SiteController extends Controller
             }
         }
         // display the login form
-    	$this->layout = 'homepage';
+        $this->page_title = 'Muslim Harmony - Login';
+        $this->layout = 'homepage';
         $this->render('mainLogin', array('loginModel' => $loginModel, 'err'=>$err));
     }
 
@@ -190,8 +193,8 @@ class SiteController extends Controller
    		// Send mail
    		$result = $Mailer->send($Message);
     	 
-   		$this->layout = 'logged_in_signup';
-   		
+		$this->page_title = 'Muslim Harmony - Acitvation email sent';
+    	$this->layout = 'logged_in_signup';
    		$this->render('signupEmailSent', array());
     }
     
@@ -216,9 +219,9 @@ class SiteController extends Controller
    			}
    		} 
    		
+    	$this->page_title = 'Muslim Harmony - Verfication failed';
     	$this->layout = 'homepage';
     	$this->render('tokenVerificationFailed');
-    
     }
     
     public function actionResetPassword()
@@ -239,7 +242,8 @@ class SiteController extends Controller
     			$this->redirect('logout');
     		}
     	}
-    	 
+    	
+    	$this->page_title = 'Muslim Harmony - Reset password';
     	$this->layout = 'homepage';
     	$this->render('resetPassword', array('model'=>$model));
     }
@@ -264,6 +268,7 @@ class SiteController extends Controller
    		}
    		else
    		{
+   			$this->page_title = 'Muslim Harmony - Verfication failed';
    			$this->layout = 'homepage';
    			$this->render('tokenVerificationFailed', array());
    		}
@@ -374,7 +379,7 @@ class SiteController extends Controller
 			}
     	}
     	
-    	
+    	$this->page_title = 'Muslim Harmony - Registration - Getting personal info';
     	$this->layout = 'logged_in_signup';
     	$this->render('signupPersonal', 
     			array('member'=>$member, 
@@ -451,6 +456,7 @@ class SiteController extends Controller
     	
     	}
     	
+    	$this->page_title = 'Muslim Harmony - Forgot Password';
     	$this->layout = 'homepage';
     	$this->render('forgotPassword',	array("member"=>$formMember, 
     										"valid_email_format"=>$v1,
@@ -501,6 +507,7 @@ class SiteController extends Controller
     	// Re-associated alias
     	Yii::app()->user->member = $member;
     	
+    	$this->page_title = 'Muslim Harmony - Registration - Your thoughts';
     	$this->layout = 'logged_in_signup';
     	$this->render('signupWritten', array('member'=>$member, 'questionList'=>$questions));
     
@@ -584,6 +591,7 @@ class SiteController extends Controller
     	// Re-associated alias
     	Yii::app()->user->member = $member;
     	
+    	$this->page_title = 'Muslim Harmony - Registration - More info';
     	$this->layout = 'logged_in_signup';
     	$this->render('signupSecondary', array('listOfResp'=>$listOfResp));
     
@@ -695,6 +703,7 @@ class SiteController extends Controller
     	// Re-associated alias
     	Yii::app()->user->member = $member;
     	
+    	$this->page_title = 'Muslim Harmony - Registration - What you\'re looking for';
     	$this->layout = 'logged_in_signup';
     	$this->render('signupLookingFor', array('member'=>$member,
     								'listOfResp'=>$listOfResp,
@@ -737,7 +746,8 @@ class SiteController extends Controller
     	
     	// Re-associated alias
     	Yii::app()->user->member = $member;
-    	 
+    	
+    	$this->page_title = 'Muslim Harmony - My Profile';
     	$this->layout = 'logged_in_general'; 
     	$this->render('myProfile', array('member'=>$member, 
     			'writtenQuestions'=>$writtenQuestions,
@@ -781,6 +791,7 @@ class SiteController extends Controller
     		$this->layout = 'homepage';
     	}
     	
+    	$this->page_title = 'Muslim Harmony - Viewing '.$vw_member->user_name.'\'s profile';
 		$this->render('viewProfile', array(	'member'=>$vw_member,
     	  									'writtenQuestions'=>$writtenQuestions,
     										'detailAnswers'=>$detailAnswers,
@@ -824,6 +835,7 @@ class SiteController extends Controller
     	// Re-associated alias
     	Yii::app()->user->member = $member;
     	
+    	$this->page_title = 'Muslim Harmony - My Photos';
     	$this->layout = 'logged_in_general';
     	$this->render('myProfilePhotos', array('member'=>$member,
     				'writtenQuestions'=>$writtenQuestions,
@@ -851,6 +863,7 @@ class SiteController extends Controller
     		$this->layout = 'homepage';
     	}
     	
+    	$this->page_title = 'Muslim Harmony - Viewing '.$vw_member->user_name.'\'s photos';
     	$this->render('viewProfilePhotos', 
     			array(	'member'=>$vw_member, 
     					'imageListPublic'=>$imageListPublic, 
@@ -1247,6 +1260,7 @@ class SiteController extends Controller
     	// Re-associated alias
     	Yii::app()->user->member = $member;
     	
+    	$this->page_title = 'Muslim Harmony - Settings';
     	$this->layout = "logged_in_general"; 
     	$this->render('userSettings', array('member' => $member));
     }
@@ -1310,6 +1324,7 @@ class SiteController extends Controller
     		}
     	}
     	
+    	$this->page_title = 'Muslim Harmony - Home';
 		$this->layout = "logged_in_general"; 
     	$this->render('home', array('member' => Yii::app()->user->member, 
     								'resultsArray'=>$resultsArray));
@@ -1393,6 +1408,7 @@ class SiteController extends Controller
     				}
     			}
     		
+    			// Now that new QR information is loaded lets refresh the member accept model
     			$ds->refreshMemberAccept(null);
     		}
     		
@@ -1616,6 +1632,8 @@ class SiteController extends Controller
     	}else{
     		$this->layout = 'homepage';
     	}
+    	
+    	$this->page_title = 'Muslim Harmony - Search';
     	$this->render('browse', array('member'=>$member, 
 					    			'listOfResp'=>$ds->formResponseArray, 
 					    			'loc_model'=>$ds->formLocation, 
@@ -2138,6 +2156,7 @@ class SiteController extends Controller
     		}
     	}
     	
+    	$this->page_title = 'Muslim Harmony - Messaging'; 
     	$this->layout = 'base';
     	$this->render('chat', array('convo_side_list'=>$mainConvoList, 
     								'other_member'=>$other_member, 
@@ -2584,6 +2603,7 @@ class SiteController extends Controller
     			'member_id=:member_id and verb_id=:verb_id and is_read=:is_read',
     			array(':member_id'=>$member_id, ':verb_id'=>$verb_id, ':is_read'=>'N'));
     	
+    	$this->page_title = 'Muslim Harmony - Whose viewed me';
     	$this->layout = 'logged_in_general';
     	$this->render('whoViewedMe', array(
     			'wasViewedByArray'=>$wasViewedByArray,
@@ -2632,6 +2652,7 @@ class SiteController extends Controller
     		$iViewedArray[] = $new_result;
     	}
      
+    	$this->page_title = 'Muslim Harmony - Who I viewed';
     	$this->layout = 'logged_in_general';
     	$this->render('whoIViewed', array(
     			'iViewedArray'=>$iViewedArray,
@@ -2686,7 +2707,8 @@ class SiteController extends Controller
     			array('is_read'=>'Y'),
     			'member_id=:member_id and verb_id=:verb_id and is_read=:is_read',
     			array(':member_id'=>$member_id, ':verb_id'=>$verb_id, ':is_read'=>'N'));
-    	 
+    	
+    	$this->page_title = 'Muslim Harmony - Who likes me';
     	$this->layout = 'logged_in_general';
     	$this->render('whoLikesMe', array(
     			'whoLikesMeArray'=>$whoLikesMeArray,
@@ -2736,6 +2758,7 @@ class SiteController extends Controller
     		$whoILikeArray[] = $new_result;
     	}
     
+    	$this->page_title = 'Muslim Harmony - Who I like';
     	$this->layout = 'logged_in_general';
     	$this->render('whoILike', array(
     			'whoILikeArray'=>$whoILikeArray,
@@ -2803,6 +2826,8 @@ class SiteController extends Controller
     			}
     		}
     	}
+    	
+    	$this->page_title = 'Muslim Harmony - Upgrade';
     	$this->layout = "logged_in_signup";
     	$this->render('signupUpgrade', array('model' => $model, 'member' => $member));
     }
@@ -2870,6 +2895,7 @@ class SiteController extends Controller
     		}
     	}
 		
+    	$this->page_title = 'Muslim Harmony - Upgrade';
 		$this->layout = "logged_in_general";
 		$this->render('upgrade', array('model' => $model, 'member' => $member));
     }    	   	
@@ -3360,7 +3386,8 @@ where id in
 				// Unsubscribe auto handles null member
 			}	 
 		}
-					
+		
+		$this->page_title = 'Muslim Harmony - Unsubscribe';
 		$this->layout = 'homepage';
 		$this->render('unsubscribe', array('member'=>$member, 'saved'=>$saved));
 	
@@ -3374,6 +3401,8 @@ where id in
     	}else{
     		$this->layout = 'homepage';
     	}
+    	
+    	$this->page_title = 'Muslim Harmony - Contact Us';
 		$this->render('contact');
 	}
 	
@@ -3385,6 +3414,8 @@ where id in
 		}else{
 			$this->layout = 'homepage';
 		}
+		
+		$this->page_title = 'Muslim Harmony - About Us';
 		$this->render('about');
 	}
 	
@@ -3396,6 +3427,8 @@ where id in
 		}else{
 			$this->layout = 'homepage';
 		}
+		
+		$this->page_title = 'Muslim Harmony - Terms';
 		$this->render('terms');
 	}
 	
@@ -3407,6 +3440,8 @@ where id in
 		}else{
 			$this->layout = 'homepage';
 		}
+		
+		$this->page_title = 'Muslim Harmony - Privacy Policy';
 		$this->render('privacy');
 	}
 	
@@ -3418,6 +3453,8 @@ where id in
 		}else{
 			$this->layout = 'homepage';
 		}
+		
+		$this->page_title = 'Muslim Harmony - FAQ';
 		$this->render('faq');
 	}
 	
@@ -3431,6 +3468,8 @@ where id in
 	{
 		Yii::app()->user->member->refresh();
 		$data = SubscriptionDetails::model()->findAllByAttributes(array('member_id'=>Yii::app()->user->member->id));
+		
+		$this->page_title = 'Muslim Harmony - Account Information';
 		$this->layout = 'logged_in_general';
 		$this->render('account', array('data'=>$data));
 	}

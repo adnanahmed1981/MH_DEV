@@ -98,11 +98,11 @@ class FormLocation extends CFormModel
 		
 		if (isset($city)){
 			$instance->country_id = $city->CountryID;
-			$instance->region_id = $city->RegionID;
+			$instance->region_id = $city->RegionID; 
 			$instance->city_id = $city->id;
 			$instance->city_name = $city->Name;
-			$instance->region_name = $city->RefRegions->Name;
-			$instance->country_name = $city->RefCountries->Name;
+			$instance->region_name = $city->region->Name;
+			$instance->country_name = $city->country->Name;
 			$instance->lat = $city->Latitude;
 			$instance->long = $city->Longitude;	
 		}
