@@ -90,14 +90,14 @@ if (count($views_member_list) > 0){
 
 			<div style="float: left; clear:both;">
 				<p style="font:normal 12px/12px Arial, Helvetica, sans-serif; color:#606060; margin:20px 0 30px 0;">
-					<br>Please login to <a href="http://<?php echo $baseUrl; ?>/index.php/site/chat">Muslim Harmony</a> to view your updates.
+					<br>Please login to <a href="<?php echo $baseUrl; ?>/index.php/site/chat">Muslim Harmony</a> to view your updates.
 				</p>
 			</div>
      
 			<div style="float: left; clear:both;">    
 				<p style="font:bold 12px Arial, Helvetica, sans-serif; color:#616161; padding:0 0 5px; margin:0">Regards,</p>
 				<p style="font:11px Arial, Helvetica, sans-serif; color:#909090; padding:0 0 0; margin:0"><strong style="color:#616161">MuslimHarmony Team</strong><br />
-			    <a href="http://www.muslimharmony.com" style="color:#909090; text-decoration:none">www.muslimharmony.com</a><br />
+			    <a href="www.muslimharmony.com" style="color:#909090; text-decoration:none">www.muslimharmony.com</a><br />
 			    <a href="mailto:<?php echo Yii::app()->params['adminEmail']; ?>"><?php echo Yii::app()->params['adminEmail']; ?></a>
 			</div>
     	</td>

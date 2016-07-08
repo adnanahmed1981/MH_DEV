@@ -16,8 +16,8 @@
                     		This is a legal agreement between you and
                             MuslimHarmony. You must read and agree to these terms and conditions before you may view or
                             register for our Site (<span lang="zxx" xml:lang="zxx"><U><a
-                                        href="http://www.muslimharmony.com"
-                                        class="black11">http://www.muslimharmony.com</a>)</U></span>. IF YOU DO NOT
+                                        href="www.muslimharmony.com"
+                                        class="black11">https://www.muslimharmony.com</a>)</U></span>. IF YOU DO NOT
                             AGREE TO THESE TERMS &amp; CONDITIONS, YOU MAY NOT USE THE PRODUCTS OR SERVICES. By visiting
                             the MuslimHarmony's site you are agreeing to be bound by this Agreement, including all
                             adjustments thereafter. It is advised to check back frequently as this Agreement is subject

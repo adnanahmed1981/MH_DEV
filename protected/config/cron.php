@@ -6,7 +6,7 @@ $request = array();
 // LIVE == true if 'localhost' is not present in the host name. 
 if (LIVE) {
 
-	$request['hostinfo'] = 'http://www.muslimharmony.com';
+	$request['hostinfo'] = 'https://www.muslimharmony.com';
 	
 	define('EMAIL_HOST', 'port80.smtpcorp.com');
 	define('EMAIL_PORT', 80);

@@ -29,8 +29,8 @@ $imagePath = Yii::app()->request->hostInfo.Yii::app()->request->baseUrl."/images
 		?>
 		<p style="font:bold 12px Arial, Helvetica, sans-serif; color:#616161; padding:0 0 5px; margin:0">Best Regards,</p>
 		<p style="font:11px Arial, Helvetica, sans-serif; color:#909090; padding:0 0 0; margin:0"><strong style="color:#616161">MuslimHarmony Team</strong><br />
-        <a href="http://www.muslimharmony.com" style="color:#909090; text-decoration:none">www.muslimharmony.com</a><br />
-        <a href="http://www.muslimmarriageadvice.com" style="color:#909090; text-decoration:none">www.muslimmarriageadvice.com</a></p>
+        <a href="www.muslimharmony.com" style="color:#909090; text-decoration:none">www.muslimharmony.com</a><br />
+        <a href="www.muslimmarriageadvice.com" style="color:#909090; text-decoration:none">www.muslimmarriageadvice.com</a></p>
     </td>
     </tr><!-- inner container -->
     <tr style="border-top:1px solid #d0d0d0; text-align:center; background:#fff; padding-top:15px;">
