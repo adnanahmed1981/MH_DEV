@@ -910,7 +910,7 @@ form.chat button { width: 100%; background: rgb(130, 224, 255); border: none; pa
 }
 .chat-container{ 
 	padding: 0px;
-	background-image: url("/MH_DEV/images/chat.png");
+	background-image: url("./../images/chat.png");
 	min-height: calc(100vh - 55px);
 }  
 

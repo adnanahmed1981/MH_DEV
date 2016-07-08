@@ -329,7 +329,7 @@ class SiteController extends Controller
     	// Since updates were done behind the scene update the member model
     	Yii::app()->user->member->refresh();
     	$member = Yii::app()->user->member;
-    	$loc_model = FormLocation::withLocIDs($member->country_id, $member->region_id, $member->city_id);
+    	$loc_model = FormLocation::withLocIDs($member->country_id, $member->region_id, $member->city_id, 0);
     	
     	if (isset($_POST['continue'])){
     		
@@ -669,7 +669,8 @@ class SiteController extends Controller
     	$loc_model = FormLocation::withLocIDs(
     			$member->memberAccept->country_id,
     			$member->memberAccept->region_id,
-    			$member->memberAccept->city_id);
+    			$member->memberAccept->city_id,
+    			$member->memberAccept->proximity_id);
     
     	if (isset($_POST['submit'])) { 
     		
@@ -884,7 +885,7 @@ class SiteController extends Controller
     	
     	$member = Member::model()->with('memberAccept')->findByAttributes(array('id' => Yii::app()->user->member->id));
     	
-    	$loc_model = FormLocation::withLocIDs($member->country_id, $member->region_id, $member->city_id);
+    	$loc_model = FormLocation::withLocIDs($member->country_id, $member->region_id, $member->city_id, 0);
     	
     	$validated = true;
     	
@@ -1290,10 +1291,11 @@ class SiteController extends Controller
     			"		last_login_date \n".
     			"FROM	member m, (select * from question_response where question_id = 6) lang \n".
     			"WHERE 	m.id = lang.member_id \n".
-    			"AND	m.step = 999 \n".
+    			"AND	((m.step >= 2 and m.id < 810) OR (m.step = 999)) \n".
     			"AND 	m.gender = '".$gender_obj->value."' \n".
     			"AND	m.picture_id is not null ";
-    		
+    	
+    	
     	if (!empty($memberAccept->sect)){
     		$sql .= sprintf("AND sect in (%s) \n", $memberAccept->sect);
     	}
@@ -1316,7 +1318,9 @@ class SiteController extends Controller
     	}
     	/***END***/ 
     	
-    	shuffle($resultsArray);
+    	if (count(resultArray) > 0){
+    		shuffle($resultsArray);
+    	}
     	
     	for ($i=0; $i<count($resultsArray); $i++){
     		if ($i >= $maxshow){
@@ -1534,8 +1538,8 @@ class SiteController extends Controller
 			
 			$sql .=	"FROM	member m, (select * from question_response where question_id = 6) lang \n".
 	    			"WHERE 	m.id = lang.member_id \n".
-	      			"AND	m.step = 999 \n";
-	    	
+	      			"AND	((m.step >= 2 and m.id < 810) OR (m.step = 999)) \n";
+    			
 	    	$sql .= sprintf("AND m.gender = '%s' \n", $gender_obj->value);
 	   		$sql .= sprintf("AND m.date_of_birth between DATE_SUB(UTC_TIMESTAMP(), interval %s year) ".
 	    			"AND DATE_SUB(UTC_TIMESTAMP(), interval %s year) \n", $max_age_val + 1, $min_age_val - 1);
@@ -1604,7 +1608,7 @@ class SiteController extends Controller
 		   				"ORDER BY $order_by_val DESC LIMIT $limit OFFSET $offset ";
 		   				
 		   	// print_all(memberAccept);
-		   	// echo nl2br($mainSql);  
+		   	// echo nl2br($mainSql);   
 		   	// member.join_date 
 		   	// member.last_login_date
 		   	
@@ -1867,7 +1871,7 @@ class SiteController extends Controller
 
     public function actionGetLocation(){
     	
-    	$loc_model = FormLocation::withLocIDs(43,37,12054); 
+    	$loc_model = FormLocation::withLocIDs(43,37,12054,0); 
     	
     	if (isset($_POST['FormLocation'])){
     		$loc_model->attributes = $_POST['FormLocation'];
@@ -3393,7 +3397,7 @@ where id in
 	
 	}
 	
-	public function actionContact(){
+	public function actionContactUs(){
 		 
 	    if (!Yii::app()->user->isGuest){ 
 	    	$this->layout = 'logged_in_general';
@@ -3406,7 +3410,7 @@ where id in
 		$this->render('contact');
 	}
 	
-	public function actionAbout(){
+	public function actionAboutUs(){
 			
 		if (!Yii::app()->user->isGuest){
 			$this->layout = 'logged_in_general';
@@ -3419,7 +3423,7 @@ where id in
 		$this->render('about');
 	}
 	
-	public function actionTerms(){
+	public function actionTermsOfUse(){
 			
 		if (!Yii::app()->user->isGuest){
 			$this->layout = 'logged_in_general';
@@ -3456,6 +3460,10 @@ where id in
 		
 		$this->page_title = 'Muslim Harmony - FAQ';
 		$this->render('faq');
+	}
+	
+	public function actionOurTeam(){
+		$this->redirect(Yii::app()->request->baseUrl . '/index.php/site/index');
 	}
 	
 	public function actionPaypalNotify()
