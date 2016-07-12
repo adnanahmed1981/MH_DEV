@@ -1,24 +1,14 @@
 $(document).ready(function(){
 	
-	
 	$("abbr.timeago").timeago();
-	
-	function updateLocation (){
-
-		$.post("ajaxHelperProcessLocation", $("form").serialize(), 
-				function(data){ 
-			//console.log(data.regionDD);	
-			$("#region_id_block").replaceWith(data.regionDD);
-			$("#city_id_block").replaceWith(data.cityDD);
-			}, "json");
-	}
-	
+		
+	/* Event Handlers */
 	$("body").on("change", "select#country_id", function (event){
 		$("#region_id").val(null);
 		$("#city_id").val(null);
 		updateLocation();
 	});
-
+ 
 	$("body").on("change", "select#region_id", function (event){
 		$("#city_id").val(null);
 		updateLocation();
@@ -64,15 +54,12 @@ $(document).ready(function(){
     	}});
     /* Auto correct age and height inputs */
 
-    
-    /*** START - GET LOCATION JS ***/
-
+    /* START - GET LOCATION JS */
     // If country changes reset all other sub elements
-	//$('#FormLocation_country_id').change(function(e){
     $("body").on("change", "#FormLocation_country_id", function(){
-		$("#FormLocation_additional").html(`<div class="col-xs-4 input-desc"></div>
-											<div class="col-xs-8 col-sm-6 col-md-8 input-item"></div>
-											<div class="col-xs-offset-4 col-xs-8 col-sm-6 col-md-8"></div>`);
+		$("#FormLocation_additional").html("<div class='col-xs-4 input-desc'></div> \
+											<div class='col-xs-8 col-sm-6 col-md-8 input-item'></div> \
+											<div class='col-xs-offset-4 col-xs-8 col-sm-6 col-md-8'></div>");
 		$("#FormLocation_error").html("");
 		$("#FormLocation_city_name").val("");
 		$("#FormLocation_region_id").val("");
@@ -83,7 +70,6 @@ $(document).ready(function(){
 
 	var oldCityName;
 	// Update location info when enter is pressed after city
-	//$('#FormLocation_city_name').keydown(function(e){
 	$("body").on("keydown", "#FormLocation_city_name", function(e){	
 		if (e.keyCode == 13 || e.keyCode == 9){
 			e.preventDefault();
@@ -94,7 +80,6 @@ $(document).ready(function(){
 	});
 
 	// Update location info when the user moves out of the textbox
-	//$('#FormLocation_city_name').focusout(function(e){
 	$("body").on("focusout", "#FormLocation_city_name", function(){	
 		processCityName();
 		oldCityName = $('#FormLocation_city_name').val();
@@ -144,8 +129,6 @@ $(document).ready(function(){
 				$this.attr("data-action", "fave");
 			}
 		}, "json");
-			
-		
 	});
 
 	$("body").on("click", ".block", function(e){
@@ -158,7 +141,6 @@ $(document).ready(function(){
 		$.post("ajaxUpdateConnection", {other_member_id: l_mid, action: l_action}, 
 		function(data){ 
 			if (l_action === "block"){
-				
 				$(".block-image").removeClass("hide").addClass("show");
 				$(".favourite").removeClass("show").addClass("hide");
 				
@@ -168,7 +150,6 @@ $(document).ready(function(){
 					
 				$this.text("Unblock User");
 			}else{
-				
 				if ($("#was_blocked_by").val() == "1"){
 					$(".block-message").html("has blocked you");	
 				}else{
@@ -181,12 +162,18 @@ $(document).ready(function(){
 				$this.text("Block User");
 			}
 		}, "json");
-			
-		
 	});
-	
-
 });
+
+function updateLocation(){
+
+	$.post("ajaxHelperProcessLocation", $("form").serialize(), 
+			function(data){ 
+		//console.log(data.regionDD);	
+		$("#region_id_block").replaceWith(data.regionDD);
+		$("#city_id_block").replaceWith(data.cityDD);
+		}, "json");
+}
 
 function processCityName(){
 	 $.post("ajaxGetLocation", $("form").serialize(),
@@ -236,12 +223,10 @@ function processCityName(){
 }
 
 function getFormattedTime(utc_time){ 
-	
 	var current_unix_time = Date.now()/1000;
 	var current_t = new Date(current_unix_time*1000);
 	var in_unix_time = Date.parse(utc_time)/1000;
 	var in_t = new Date(in_unix_time*1000);
-	
 	var ampm = (in_t.getHours() >= 12) ? "PM" : "AM";
 	var hour = (in_t.getHours() > 12) ? in_t.getHours() - 12 : in_t.getHours();
 	var mins = (in_t.getMinutes() >= 10) ? in_t.getMinutes() : "0"+in_t.getMinutes();
@@ -296,15 +281,22 @@ function getFormattedTime(utc_time){
 						under_year:local_time_year,
 						over_year:local_time};
 	*/
-	return ret_time;
+	if (isNaN(ret_time)){
+		/* 2016-07-09T18:11:07+0000
+		 * 2016-07-09 18:11
+		 */
+		ret_time = utc_time.substr(0,10)+" "+utc_time.substr(11,5);
+	}	
 	
+	return ret_time;
+
 }
 
 function updateTimes(){
 	$(".local-time").each(
 		function(){
 			var formatted_date = getFormattedTime($(this).attr('title'));
-			$(this).html(formatted_date);
+			$(this).html(formatted_date);		
 		});
 }; 
 
@@ -402,33 +394,7 @@ function handleResponse(response, init) {
 			alert_user = true;
 		}
 	}
-	
-	/* 
-		if (response['visitor_count'] == 0){
-			$('#visitor_badge').html('');
-		}else{
-	        $('#visitor_badge').html(response['visitor_count']);
-		}
-
-		if (response['like_count'] == 0){
-			$('#like_badge').html('');
-		}else{
-	        $('#like_badge').html(response['like_count']);
-		}
-
-		if (response['message_count'] == 0){
-			$('#message_badge').html('');
-		}else{
-	        $('#message_badge').html(response['message_count']);
-		}
-		
-		if (response['notification_count'] == 0){
-			$('#notification_badge').html('');
-		}else{
-	        $('#notification_badge').html(response['notification_count']);
-		}
-	*/
-		
+			
 	if (response['visitor_count']){
 		if (response['chat_array']){
 			
@@ -478,65 +444,4 @@ $.post("processLocation", $("#editBasicInfo-form").serialize(),
 	$("#city_id").html($city);
 	});
 }
-*/
-
-/*
-var Comet = Class.create();
-	Comet.prototype = {
- 
-	timestamp_unix: 0,
-	chat_member_id: <php echo $other_member->id; >,
-	url: 'cometEvents',
-	noerror: true,
- 
-	initialize: function() { },
- 
-	connect: function()
-	{
-    	console.log("b4 connect:"+this.timestamp_unix);
-		this.ajax = new Ajax.Request(this.url, {
-			method: 'get',
-			parameters:{'timestamp_unix' : this.timestamp_unix,
-            			'chat_member_id' : this.chat_member_id },
-			onSuccess: function(transport) {
-				// handle the server response
-				var response = transport.responseText.evalJSON();
-				this.comet.timestamp_unix = response['timestamp_unix'];
-				this.comet.handleResponse(response);
-				this.comet.noerror = true;
-			},
-			onComplete: function(transport) {
-				// send a new ajax request when this request is finished
-				if (!this.comet.noerror)
-					// if a connection problem occurs, try to reconnect each 5 seconds
-					setTimeout(function(){ comet.connect() }, 5000); 
-				else{
-					this.comet.connect();
-				}
-				this.comet.noerror = false;
-			}
-      	});
-		this.ajax.comet = this;
-	},
-    disconnect: function()
-    {
-    },
-    handleResponse: function(response)
-    {
-		if (response['views_count'] != null){
-	        $('#views_count').html(response['views_count']);
-	        $('#likes_count').html(response['likes_count']);
-	        navigator.vibrate(500);
-        }
-    },
-	doRequest: function(request)
-	{
-		new Ajax.Request(this.url, {
-			method: 'get',
-			parameters: { 'text_message' : request }
-		});
-	}
-}
-var comet = new Comet();
-comet.connect();
 */
