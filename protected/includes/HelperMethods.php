@@ -65,7 +65,7 @@ function create_member_tile($result){
 					
 				
 				<a href="viewProfile?m=<?php echo $result->other_member->id; ?>">
-					<img src="<?php echo timThumbPath($imagePath, array("h"=>400, "w"=>400));?>" 
+					<img src="<?php echo timThumbPath($imagePath, array("h"=>100, "w"=>100));?>" 
 						class="img-responsive no-padding">
 				</a>
 			</div>
@@ -783,4 +783,75 @@ HTML;
  	
  	return $html;
  }
+ 
+ function send_push_message_by_member_id($mid){
+ 	
+ 	$member_details = MemberDetails::model()->findAllByAttributes(
+    			array('member_id'=>Yii::app()->user->member->id,
+    				'member_details_type_id'=>1));
+ 	$endpoints = array();
+ 	foreach ($member_details as $md){
+ 		$endpoints[] = $md->value;
+ 	}
+ 	
+ 	return send_push_message_by_endpoints($endpoints);
+ }
+ 
+ function send_push_message_by_endpoints($endpoints){
+ 	ob_start();
+ 	$out = fopen('php://output', 'w');
+ 	
+ 	$apikey = "AIzaSyBdqQoT_buJThgJAlyuNYZxm2B7GlFMEnE";
+ 	$url = "";
+ 	$sub_ids = array(); 
+ 	
+ 	foreach($endpoints as $endpoint){
+ 		$l_pos = strrpos($endpoint, "/");
+ 		$l_url = substr($endpoint, 0, $l_pos);
+ 		$l_sub_id = substr($endpoint, $l_pos+1);
+ 		
+ 		$l_pos2 = strpos($l_url, 'google');
+ 		if ($l_pos2 !== false){
+ 			// Its a google push
+ 			$url = $l_url;
+ 			$sub_ids[] = $l_sub_id;
+ 		}
+ 	}
+ 	
+ 	
+ 	$post = array();
+ 	$post['registration_ids'] = $sub_ids;
+ 	//$post['notification'] = array('to'=>$sub_ids, 'data'=> array('body'=>'B', 'title'=>'T', 'icon'=>'I'));
+ 	$post['data'] = array('body'=>'B', 'title'=>'T', 'icon'=>'I');
+ 	$postText = json_encode($post);
+ 	echo $postText;
+ 	// create curl resource
+ 	$ch = curl_init();
+ 	curl_setopt($ch, CURLOPT_VERBOSE, true);
+ 	curl_setopt($ch, CURLOPT_STDERR, $out);
+ 	// set url
+ 	curl_setopt($ch, CURLOPT_URL, $url);
+ 	// set header
+ 	$header = array("Authorization: key=$apikey",
+ 			"Content-Type: application/json",
+ 	);
+ 	curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+ 	// return the transfer as a string
+ 	
+ 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+ 	// set POST data
+ 	curl_setopt($ch, CURLOPT_POST, 1);
+ 	curl_setopt($ch, CURLOPT_POSTFIELDS, $postText);
+ 	// $output contains the output string
+ 	$outputJSON = curl_exec($ch);
+ 	// close curl resource to free up system resources
+ 	curl_close($ch);
+ 	
+ 	fclose($out);
+ 	$debug = ob_get_clean();
+ 	echo $debug;
+ 	echo $outputJSON;
+ 	return $debug;
+ }
+ 
  ?>
