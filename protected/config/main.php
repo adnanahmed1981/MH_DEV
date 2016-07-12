@@ -30,7 +30,7 @@ if (LIVE) {
 	}else{ 
 
 		$db = array(
-				'connectionString' => 'mysql:host=localhost;dbname=servem_prod',
+				'connectionString' => 'mysql:host=localhost;dbname=servem_dev',
 				'emulatePrepare' => true,
 				'username' => 'servem_adnan',
 				'password' => 'dmx2pakiMH',
@@ -80,12 +80,12 @@ return array(
 	// autoloading model and component classes
 	'import'=>array(
 		'application.models.*',
-		'application.components.*',
+		'application.components.*', 
 		'application.helpers.*',
         'application.vendors.*',
         'application.vendors.bfi.*',
 		'application.extensions.image.Image'   
-	),
+	), 
 
 	'modules'=>array(
 		// uncomment the following to enable the Gii tool 
