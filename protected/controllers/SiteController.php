@@ -1,6 +1,7 @@
 <?php
 
 use Facebook\Facebook;
+
 class SiteController extends Controller 
 {
 	public $page_title;
@@ -764,12 +765,10 @@ class SiteController extends Controller
     	
     	$vw_member = Member::model()->findByAttributes(array(
     			'id' => $m, 
-    			'status'=>'OPEN', 
-    			'step'=>'999', 
     			//'gender'=>Yii::app()->user->member->looking_for, 
     	));
     	
-    	if (empty($vw_member)){
+    	if (empty($vw_member) || $vw_member->status != 'OPEN'){
     		$this->redirect("index");
     	}
     	
@@ -873,10 +872,50 @@ class SiteController extends Controller
     }
     
     public function actionTest()
-    {
-    	$this->layout = 'www';
-    	$this->render('emails/email_newMail', array());
-    
+    { 
+    	
+    	Yii::setPathOfAlias('Minishlink',Yii::getPathOfAlias('application.components.Minishlink'));
+    	Yii::setPathOfAlias('Buzz',Yii::getPathOfAlias('application.components.kriswallsmith.buzz.lib.Buzz'));
+    	Yii::setPathOfAlias('Base64Url',Yii::getPathOfAlias('application.components.spomky-labs.base64url.src'));
+    	Yii::setPathOfAlias('AESGCM',Yii::getPathOfAlias('application.components.spomky-labs.php-aes-gcm.src'));
+    	Yii::setPathOfAlias('Mdanter',Yii::getPathOfAlias('application.components.Mdanter')); 
+    	Yii::setPathOfAlias('Assert',Yii::getPathOfAlias('application.components.beberlei.assert.lib.Assert'));
+    	 
+    	//require_once('Minishlink/WebPush/WebPush.php');
+    	//require_once('Minishlink/WebPush/Encryption.php');
+    	//require_once('Minishlink/WebPush/Notification.php');
+	    	 
+		// array of notifications
+		$notifications = array(
+		    array(
+		        'endpoint' => 'https://android.googleapis.com/gcm/send/cd5Od_m70Co:APA91bFyLunwUkewZNN3A8E…Xksr-nYmKqm7TEWj8xDeikyt77k5f87STPCeouQx9ATMizD5iw3Z2PAP239CjW_NNVVxULN7jZ', // Chrome
+		        'payload' => 'chrome test',
+		        'userPublicKey' => 'BFMc8TlsqTXzHxDytr_ZbSRWnl4Y2lnLp-1M3kaoKdydlerenVtJdJDJrm-A4qw-a0L7IrRBdnLIecidd1ExO-Y=',
+		        'userAuthToken' => 'ybGxHpYSiBTiz39Q1HRZBw==',
+		    )
+		);
+		
+		$apiKeys = array("GCM"=>"AIzaSyBdqQoT_buJThgJAlyuNYZxm2B7GlFMEnE");
+		$webPush = new Minishlink\WebPush\WebPush($apiKeys);
+		
+		// send multiple notifications with payload
+		foreach ($notifications as $notification) {
+		    $webPush->sendNotification(
+		        $notification['endpoint'],
+		        $notification['payload'], // optional (defaults null)
+		        $notification['userPublicKey'], // optional (defaults null)
+		        $notification['userAuthToken'] // optional (defaults null)
+		    );
+		}
+		$webPush->flush();
+		
+		// send one notification and flush directly
+		
+
+    	//$this->layout = 'www';
+//    	$this->render('emails/email_newMail', array());
+    	//$this->render('test', array());
+    	   
     }
     
 	public function actionEditBasicInfo()
@@ -1018,8 +1057,6 @@ class SiteController extends Controller
     		$member->attributes = $_POST['MemberAccept'];
     		$passMember = "member->memberAccept";
     		
-    		print_all($_POST['MemberAccept']);
-    		print_all($member->memberAccept);
     	}
     	$this->render('ajaxHelperProcessLocation', array('member'=>$member, 'passMember'=>$passMember));
     
@@ -1546,10 +1583,11 @@ class SiteController extends Controller
 	   		$sql .= sprintf("AND m.height between %s AND %s \n", $memberAccept->min_height, $memberAccept->max_height);
 	   		if (Yii::app()->user->isGuest)
 	   			$sql .= sprintf("AND m.public_profile in ('Y') \n");	   			 
-	   		if (!empty($memberAccept->body))
-		   		$sql .= sprintf("AND body in (%s) \n", $memberAccept->body);
 	   		if (!empty($memberAccept->sect))
 		   		$sql .= sprintf("AND sect in (%s) \n", $memberAccept->sect);
+	   		
+	   		if (!empty($memberAccept->body))
+		   		$sql .= sprintf("AND body in (%s) \n", $memberAccept->body);
 	   		if (!empty($memberAccept->marital))
 		   		$sql .= sprintf("AND marital in (%s) \n", $memberAccept->marital);
 	   		if (!empty($memberAccept->ethnicity))
@@ -1561,15 +1599,15 @@ class SiteController extends Controller
 	   		if (!empty($memberAccept->income))
 		   		$sql .= sprintf("AND income in (%s) \n", $memberAccept->income);
 	   		if (!empty($memberAccept->drinking))
-		   		$sql .= sprintf("AND drinking in (%s) \n", $memberAccept->drinking);
+		   		$sql .= sprintf("AND (drinking is null or drinking in (%s)) \n", $memberAccept->drinking);
 	   		if (!empty($memberAccept->smoke))
-		   		$sql .= sprintf("AND smoke in (%s) \n", $memberAccept->smoke);
+		   		$sql .= sprintf("AND (smoke is null or smoke in (%s)) \n", $memberAccept->smoke);
 	   		if (!empty($memberAccept->drugs))
-		   		$sql .= sprintf("AND drugs in (%s) \n", $memberAccept->drugs);
+		   		$sql .= sprintf("AND (drugs is null or drugs in (%s)) \n", $memberAccept->drugs);
 	   		if (!empty($memberAccept->prayer))
-		   		$sql .= sprintf("AND prayer in (%s) \n", $memberAccept->prayer);
+		   		$sql .= sprintf("AND (prayer is null or prayer in (%s)) \n", $memberAccept->prayer);
 	   		if (!empty($memberAccept->fasting))  
-		   		$sql .= sprintf("AND fasting in (%s) \n", $memberAccept->fasting);
+		   		$sql .= sprintf("AND (fasting is null or fasting in (%s)) \n", $memberAccept->fasting);
 		   	if (!empty($memberAccept->languages))
 	   			$sql .= sprintf("AND lang.answer_id in (%s) \n", $memberAccept->languages);
 		   	
@@ -1882,6 +1920,43 @@ class SiteController extends Controller
     	
     	$this->layout = 'homepage';
     	$this->render('getLocation', array('loc_model'=>$loc_model));
+    }
+    
+    public function actionAjaxUpdatePushSubscription(){
+  		
+    	$retval = 0;
+    	if (isset($_POST['endpoint'])){
+    		
+    		$endpoint = $_POST['endpoint'];
+    		$key = $_POST['key'];
+    		$auth = $_POST['auth'];
+    		
+    		$p = strrpos($endpoint, "/");
+    		$url = substr($endpoint, 0, $p);
+    		$sub_id = substr($endpoint, $p+1);
+
+    		// id = 1 = PUSH_ENDPOINT
+    		$md = MemberDetails::model()->findByAttributes(
+    				array('member_id'=>Yii::app()->user->member->id,
+    					'member_details_type_id'=>1,
+    					'value1'=>$endpoint,
+    				));
+    		
+    		if (empty($md)){
+    			$md = new MemberDetails();
+    			$md->member_id = Yii::app()->user->member->id;
+
+    			$md->member_details_type_id = 1;
+    			$md->value1 = $endpoint;
+    			$md->value2 = $key;
+    			$md->value3 = $auth;
+    			 
+    			$md->save(false);
+    			$retval = 1;
+    		}
+    	}
+    	
+    	echo CJSON::encode(array('retval' =>$retval));
     }
     
     public function actionAjaxUpdateConnection(){
@@ -2451,6 +2526,7 @@ class SiteController extends Controller
     	$updated = false;
     	if ($server_last_update > $client_last_update){
     		
+    		
     		$updated = true;
     		$log .= "update occurred cmid($chat_member_id)<br>";
     		// Get new data
@@ -2550,7 +2626,8 @@ class SiteController extends Controller
     		}
     		
     	}
-    	 
+    	
+    	
     	$response['timestamp_unix'] = $server_last_update;
     	$response['updated'] = $updated;
   
