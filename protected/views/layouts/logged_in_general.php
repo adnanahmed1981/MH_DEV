@@ -1,16 +1,18 @@
 <?php 
 $member = Yii::app()->user->member;
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 	<title><?php echo CHtml::encode($this->page_title); ?></title>
+	<link rel="manifest" href="<?php echo Yii::app()->request->baseUrl; ?>/js/manifest.json">	
 <?php include('_baseIncludes.php'); ?>
 </head>
 <body>
 
+<script src="<?php echo Yii::app()->request->baseUrl; ?>/js/sw_main.js"></script>
 <?php include_once("analyticstracking.php") ?>
 
 <?php 
@@ -18,7 +20,7 @@ $member_thumb_path_57 = timThumbPath(Yii::app()->user->member->getImagePath(), a
 $member_thumb_path_100 = timThumbPath(Yii::app()->user->member->getImagePath(), array("h"=>140, "w"=>140, "a"=>"t"));
 ?>	
 		<nav class="navbar navbar-inverse navbar-fixed-top">
-		  <div class="container" style="background-color: unset;">
+		  <div class="container" style="background-color: transparent;">
 		    <!-- Brand and toggle get grouped for better mobile display -->
 		    <div class="navbar-header">
 		      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -68,7 +70,7 @@ $member_thumb_path_100 = timThumbPath(Yii::app()->user->member->getImagePath(), 
 		            <li><a href="userSettings">Settings</a></li>
 		            <li><a href="upgrade">Upgrade</a></li>
 		            <li role="separator" class="divider"></li>
-		            <li><a href="logout"></span>Sign Out</a></li>
+		            <li><a href="logout">Sign Out</a></li>
 				  </ul>
 		        </li>
 		        <!-- ONLY FOR MOBILE MODE -->
