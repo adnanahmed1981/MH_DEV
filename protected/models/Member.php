@@ -60,7 +60,7 @@
  * @property string $notify_new_like
  * 
  * The followings are the available model relations:
- * @property MailInbox[] $mailInboxes
+ * @property Abuse[] $abuses
  * @property MemberPictures $picture
  * @property RefCities $city
  * @property RefCountries $country
@@ -69,6 +69,7 @@
  * @property MemberAccept $memberAccept
  * @property MemberConnection[] $memberConnections
  * @property MemberConnection[] $memberConnectionsOther
+ * @property MemberDetails[] $memberDetails
  * @property MemberPictures[] $memberPictures
  */
 class Member extends CActiveRecord
@@ -210,10 +211,11 @@ class Member extends CActiveRecord
 			'region' => array(self::BELONGS_TO, 'RefRegions', 'region_id'),
 			'step0' => array(self::BELONGS_TO, 'RefStep', 'step'),
 			'memberAccept' => array(self::HAS_ONE, 'MemberAccept', 'member_id'),
-			'memberPictures' => array(self::HAS_MANY, 'MemberPictures', 'member_id'),
 			'memberConnections' => array(self::HAS_MANY, 'MemberConnection', 'member_id'),
 			'memberConnectionsOther' => array(self::HAS_MANY, 'MemberConnection', 'other_member_id'),
+			'memberDetails' => array(self::HAS_MANY, 'MemberDetails', 'member_id'),
 			'refQuestions' => array(self::MANY_MANY, 'RefQuestion', 'member_questions(member_id, question_id)'),
+			'memberPictures' => array(self::HAS_MANY, 'MemberPictures', 'member_id'),					
 		);
 	}
 
@@ -354,7 +356,7 @@ class Member extends CActiveRecord
 		$criteria->compare('notify_new_message',$this->notify_new_message,true);
 		$criteria->compare('notify_new_vistor',$this->notify_new_vistor,true);
 		$criteria->compare('notify_new_like',$this->notify_new_like,true);
-
+		
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 		));
