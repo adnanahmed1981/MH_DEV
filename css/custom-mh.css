@@ -678,6 +678,21 @@ table td.xl,table th.xl	{	min-width:150px;}
 .md-padding-left-only 	{ 	padding: 0 0 0 30px !important;}
 .lg-padding-left-only 	{ 	padding: 0 0 0 45px !important;}
 .xl-padding-left-only 	{ 	padding: 0 0 0 60px !important;}
+
+.xxs-padding-vert-only 	{ 	padding: 5px 0 5px 0 !important;}
+.xs-padding-vert-only 	{ 	padding: 10px 0 10px 0 !important;}
+.sm-padding-vert-only 	{ 	padding: 15px 0 15px 0 !important;}
+.md-padding-vert-only 	{ 	padding: 30px 0 30px 0 !important;}
+.lg-padding-vert-only 	{ 	padding: 45px 0 45px 0 !important;}
+.xl-padding-vert-only 	{ 	padding: 60px 0 60px 0 !important;}
+
+.xxs-padding-hor-only 	{ 	padding: 0 5px 0 5px !important;}
+.xs-padding-hor-only 	{ 	padding: 0 10px 0 10px !important;}
+.sm-padding-hor-only 	{ 	padding: 0 15px 0 15px !important;}
+.md-padding-hor-only 	{ 	padding: 0 30px 0 30px !important;}
+.lg-padding-hor-only 	{ 	padding: 0 45px 0 45px !important;}
+.xl-padding-hor-only 	{ 	padding: 0 60px 0 60px !important;}
+
 .textarea {
 	 margin-bottom: 10px;
 }

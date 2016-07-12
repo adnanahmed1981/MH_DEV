@@ -42,7 +42,7 @@ $member_thumb_path_57 = timThumbPath(Yii::app()->user->member->getImagePath(), a
 $member_thumb_path_100 = timThumbPath(Yii::app()->user->member->getImagePath(), array("h"=>140, "w"=>140, "a"=>"t"));
 ?>
 		<nav class="navbar navbar-inverse navbar-fixed-top">
-		  <div class="container" style="background-color: unset;">
+		  <div class="container" style="background-color: transparent;">
 		    <!-- Brand and toggle get grouped for better mobile display -->
 		    <div class="navbar-header">
 		      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -115,7 +115,7 @@ if (!empty($other_member)){
 		            <li><a href="userSettings">Settings</a></li>
 		            <li><a href="upgrade">Upgrade</a></li>
 		            <li role="separator" class="divider"></li>
-		            <li><a href="logout"></span>Sign Out</a></li>
+		            <li><a href="logout">Sign Out</a></li>
 				  </ul>
 		        </li>
 		        <!-- ONLY FOR MOBILE MODE -->
@@ -233,7 +233,7 @@ if(!empty($connection)){
  	right: 10px;
     top: 27px;
     float: right;">
-			  <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+			  <button class="btn btn-primary dropdown-toggle sm-padding-hor-only" type="button" data-toggle="dropdown">
 			  <span class="caret"></span></button>
 			  <ul class="dropdown-menu  dropdown-menu-right">
 			    <li>
@@ -393,7 +393,7 @@ if (count($messageList) >= 15){
 		</div> 
 	</div>
 </div> 
-</div>
+
 <script type="text/javascript">
 
 var chat_member_id = <?php echo $other_member_id; ?>;

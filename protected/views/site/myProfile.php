@@ -69,7 +69,7 @@ if (!empty($member->picture)){
 </div>
 
 <div class="row splitterRow">
-&nbsp
+&nbsp;
 </div>
 
 <div class="row sm-padding-top">

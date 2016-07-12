@@ -106,7 +106,6 @@ foreach ($resultsArray as $result){
 ?>
 
 	</div>
-	</div>
 </div>
 
 <script>
